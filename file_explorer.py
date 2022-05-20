@@ -24,7 +24,8 @@ class ImageDirRequestHandler(SimpleHTTPRequestHandler):
             '<meta http-equiv="Content-Type" '
             'content="text/html; charset={}">'.format(enc)
         )
-        r.append("<style> img { image-rendering: pixelated; } </style>")
+        r.append("<style> img { image-rendering: pixelated; max-width: 800px; } </style>")
+        r.append("<style> video { max-width: 800px; } </style>")
         r.append("<title>{}</title>\n</head>".format(os.path.basename(title)))
         r.append(
             '<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>'
