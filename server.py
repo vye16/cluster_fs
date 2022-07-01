@@ -1,9 +1,14 @@
 import io
 import os
+import math
 import sys
 import html
 import urllib
+from jinja2 import Template
 from http.server import HTTPServer, SimpleHTTPRequestHandler
+
+
+SRC_DIR = os.path.abspath("__file__/..")
 
 
 class ImageDirRequestHandler(SimpleHTTPRequestHandler):
@@ -15,49 +20,56 @@ class ImageDirRequestHandler(SimpleHTTPRequestHandler):
             return None
 
         file_list.sort(key=lambda a: a.lower())
-        r = []
         displaypath = html.escape(urllib.parse.unquote(self.path))
         enc = sys.getfilesystemencoding()
         title = "Directory listing for {}".format(displaypath)
-        r.append("<!DOCTYPE html>\n<html>\n<head>")
-        r.append(
-            '<meta http-equiv="Content-Type" '
-            'content="text/html; charset={}">'.format(enc)
-        )
-        r.append("<style> img { image-rendering: pixelated; } </style>")
-        r.append("<title>{}</title>\n</head>".format(os.path.basename(title)))
-        r.append(
-            '<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>'
-        )
-        r.append("<body>\n<h1>{}</h1>".format(title))
-        ## keep a link to go back to parent
         parent = os.path.dirname(path.rstrip("/"))
         parent_name = "{}/".format(os.path.basename(parent))
         parent_path = "../../{}".format(parent_name)
-        r.append(
-            '<hr>\nback to parent: <a href="{}">{}</a>\n'.format(parent_path, parent)
-        )
-        r.append("<hr>\n<ul>")
 
-        for name in file_list:
+        elements = []
+        for i, name in enumerate(file_list):
             fullname = os.path.join(path, name)
             displayname = linkname = name
+
             # Append / for directories or @ for symbolic links
             # (a link to a directory displays with @ and links with /)
             if os.path.isdir(fullname):
                 displayname = name + "/"
                 linkname = name + "/"
+
             if os.path.islink(fullname):
                 displayname = name + "@"
+
             if isimage(name):
-                token = show_image(linkname)
+                filetype = "image"
             elif isvideo(name):
-                token = show_video(linkname)
+                filetype = "video"
             else:
-                token = show_file_link(linkname, displayname)
-            r.append(token)
-        r.append("</ul>\n<hr>\n</body>\n</html>\n")
-        encoded = "\n".join(r).encode(enc)
+                filetype = "file"
+
+            url = urllib.parse.quote(linkname)
+            filename = os.path.basename(linkname)
+            elements.append({
+                "filetype": filetype,
+                "filename": filename,
+                "linkname": linkname,
+                "displayname": displayname,
+                "url": url
+            })
+        
+        with open(os.path.join(SRC_DIR, "index.html"), "r") as f:
+            template = Template(f.read())
+
+        rendered = template.render(
+            title=title,
+            enc=enc,
+            parent=parent,
+            parent_path=parent_path,
+            elements=elements,
+        )
+
+        encoded = rendered.encode(enc)
         f = io.BytesIO()
         f.write(encoded)
         f.seek(0)
@@ -68,10 +80,8 @@ class ImageDirRequestHandler(SimpleHTTPRequestHandler):
         return f
 
 
-IMG_EXT = set(["jpg", "jpeg", "png", "gif", "bmp"])
-
-
 def isimage(path):
+    IMG_EXT = set(["jpg", "jpeg", "png", "gif", "bmp"])
     ext = path.split(".")[-1].lower()
     return ext in IMG_EXT
 
@@ -79,45 +89,6 @@ def isimage(path):
 def isvideo(path):
     ext = path.split(".")[-1].lower()
     return ext == "mp4"
-
-
-def show_file_link(linkname, displayname):
-    return '<li><a href="{}">{}</a></li>'.format(
-        urllib.parse.quote(linkname),
-        html.escape(displayname),
-    )
-
-
-def show_image(linkname, td_style="", height=400):
-    filename = os.path.basename(linkname)
-    #     img_str = '<img src="{}" height="{}px">'.format(linkname, height)
-    img_str = '<img src="{}">'.format(linkname)
-    ref_str = '<a href="{}" download>{}</a>'.format(
-        urllib.parse.quote(linkname),
-        filename,
-    )
-    return "\t\t<td {} align=center> {} <br> {} <br> </td>".format(
-        td_style,
-        ref_str,
-        img_str,
-    )
-
-
-def show_video(linkname, autoplay=True, td_style=""):
-    filename = os.path.basename(linkname)
-    ext = filename.split(".")[-1].lower()
-    vid_str = '<video controls autoplay><source src="{}" type="video/{}"></video>'.format(
-        linkname, ext
-    )
-    ref_str = '<a href="{}" download>{}</a>'.format(
-        urllib.parse.quote(linkname),
-        filename,
-    )
-    return "\t\t<td {} align=center> {} <br> {} <br> </td>".format(
-        td_style,
-        ref_str,
-        vid_str,
-    )
 
 
 if __name__ == "__main__":

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset={{ enc }}">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        <style> 
+            .img {
+                image-rendering: pixelated
+            }
+
+            #file-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            }
+
+            #file-grid .img-thumbnail video {
+                max-width: 100%;
+            }
+        </style>
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        <title>{{ title }}</title>
+    </head>
+    <body>
+        <div class="container-fluid">
+            <h1>{{ title }}</h1>
+            <hr>
+            back to parent: <a href="{{ parent_path }}">{{ parent }}</a>
+            <hr>
+            <div class="container-fluid" id="file-grid">
+                {% for el in elements %}
+                    {% if el["filetype"] == "image" %}
+                    <div class="img-thumbnail">
+                        <a href="{{ el['url'] }}" download>
+                            <div class="caption">{{ el['filename'] }}</div>
+                            <img class="img-fluid" src="{{ el['linkname'] }}">
+                        </a>
+                    </div>
+                    {% elif el["filetype"] == "video" %}
+                    <div class="img-thumbnail">
+                        <a href="{{ el['url'] }}" download>
+                            <div class="caption">{{ el['filename'] }}</div>
+                            <video
+                                 controls="controls"
+                                 preload="metadata"
+                                 src="{{ el['linkname'] }}#t=0.5"
+                            > </video>
+                        </a>
+                    </div>
+                    {% else %}
+                    <a href="{{ el['url'] }}">{{ el['displayname'] }}</a>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </body>
+</html>
