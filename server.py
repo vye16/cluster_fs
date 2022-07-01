@@ -28,7 +28,10 @@ class ImageDirRequestHandler(SimpleHTTPRequestHandler):
         parent_path = "../../{}".format(parent_name)
 
         elements = []
-        for i, name in enumerate(file_list):
+        for name in file_list:
+            if name.startswith("."):  # skip hidden files
+                continue
+
             fullname = os.path.join(path, name)
             displayname = linkname = name
 
