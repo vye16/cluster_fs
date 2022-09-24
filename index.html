@@ -8,6 +8,12 @@
                 image-rendering: pixelated
             }
 
+            model-viewer {
+                width: 100%;
+                height: 300px;
+                background-color: #404040;
+            }
+
             #file-grid {
                 display: grid;
                 grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -18,6 +24,7 @@
             }
         </style>
         <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
         <title>{{ title }}</title>
     </head>
     <body>
@@ -45,6 +52,20 @@
                                  src="{{ el['linkname'] }}#t=0.5"
                             > </video>
                         </a>
+                    </div>
+                    {% elif el["filetype"] == "glb" %}
+                    <div class="img-thumbnail">
+                        <a href="{{ el['url'] }}" download>
+                            <div class="caption">{{ el['filename'] }}</div>
+                        </a>
+                        <model-viewer
+                                alt="GLB/glTF file"
+                                src="{{ el['linkname'] }}"
+                                exposure=".8"
+                                camera-orbit="0deg 75deg 105%"
+                                auto-rotate
+                                camera-controls>
+                        </model-viewer>
                     </div>
                     {% else %}
                     <a href="{{ el['url'] }}">{{ el['displayname'] }}</a>
