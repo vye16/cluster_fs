@@ -41,12 +41,13 @@ class PathView(MethodView):
     def __init__(self, root):
         self.root = root
 
-    def get_path_url(self, path):
-        return path.split(self.root)[-1]
-
     def get(self, p=""):
         path = os.path.join(self.root, p)
         print(path)
+
+        def get_urlname(name):
+            # url from the root path
+            return os.path.join("/", p, name)
 
         if os.path.isdir(path):
             title = f"Contents of {path}"
@@ -54,7 +55,11 @@ class PathView(MethodView):
             for filename in os.listdir(path):
                 if filename.startswith("."):
                     continue
+
+                # absolute path
                 filepath = os.path.join(path, filename)
+                urlname = get_urlname(filename)
+
                 stat_res = os.stat(filepath)
                 filetype = get_type(filepath)
                 displayname = filename
@@ -66,7 +71,7 @@ class PathView(MethodView):
                 info = {
                     "filename": filename,
                     "displayname": displayname,
-                    "url": urllib.parse.quote(filepath),
+                    "url": urllib.parse.quote(urlname),
                     "filetype": filetype,
                     "mtime": stat_res.st_mtime,
                     "size": stat_res.st_size,
@@ -74,12 +79,12 @@ class PathView(MethodView):
 
                 contents.append(info)
 
-            parent = os.path.dirname(path)
+            parent = os.path.dirname(p.rstrip("/"))
             page = render_template(
                 "index.html",
                 title=title,
-                parent=parent,
-                parent_path=os.path.join(self.root, parent),
+                parent=os.path.join(self.root, parent),
+                parent_url=urllib.parse.quote(os.path.join("/", parent)),
                 contents=contents,
             )
             res = make_response(page, 200)
