@@ -48,6 +48,8 @@ class ImageDirRequestHandler(SimpleHTTPRequestHandler):
                 filetype = "image"
             elif isvideo(name):
                 filetype = "video"
+            elif isglb(name):
+                filetype = "glb"
             else:
                 filetype = "file"
 
@@ -92,6 +94,12 @@ def isimage(path):
 def isvideo(path):
     ext = path.split(".")[-1].lower()
     return ext == "mp4"
+
+
+def isglb(path):
+    GLB_EXT = set(["glb", "gltf"])
+    ext = path.split(".")[-1].lower()
+    return ext in GLB_EXT
 
 
 if __name__ == "__main__":
