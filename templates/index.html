@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset={{ enc }}">
+        <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+          crossorigin="anonymous"
+        >
+        <style> 
+            .img {
+                image-rendering: pixelated
+            }
+            .card {
+                width: 100%;
+                text-align: center;
+                overflow-wrap: break-word;
+            }
+            model-viewer {
+                width: 100%;
+                height: 300px;
+                background-color: #404040;
+            }
+
+            #file-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 2fr));
+            }
+
+            #file-grid video {
+                max-width: 100%;
+            }
+        </style>
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+        <title>{{ title }}</title>
+    </head>
+    <body>
+        <div class="container-fluid">
+            <h1>{{ title }}</h1>
+            <hr>
+            back to parent: <a href="{{ parent_path }}">{{ parent }}</a>
+            <hr>
+            <div class="container-fluid" id="file-grid">
+                {% for el in contents %}
+                <div class="card">
+                    {% if el["filetype"] == "image" %}
+                    <img class="img-fluid card-img-top lazyload" data-src="{{ el['url'] }}">
+                    <div class="card-body">
+                        <a href="{{ el['url'] }}" download>{{ el['filename'] }} </a>
+                    </div>
+                    {% elif el["filetype"] == "video" %}
+                    <video class="card-img-top lazyload"
+                         controls="controls"
+                         preload="none"
+                         src="{{ el['url'] }}"
+                    > </video>
+                    <div class="card-body">
+                        <a href="{{ el['url'] }}" download>{{ el['filename'] }} </a>
+                    </div>
+                    {% elif el["filetype"] == "glb" %}
+                    <model-viewer class="card-img-top"
+                            alt="GLB/glTF file"
+                            src="{{ el['url'] }}"
+                            exposure=".8"
+                            camera-orbit="0deg 75deg 105%"
+                            auto-rotate
+                            camera-controls>
+                    </model-viewer>
+                    <div class="card-body">
+                        <a href="{{ el['url'] }}" download>{{ el['filename'] }} </a>
+                    </div>
+                    {% else %}
+                    <a href="{{ el['url'] }}">{{ el['displayname'] }} </a>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <script src="{{ url_for('static', filename='lazysizes.min.js') }}" async=""></script>
+        <script src="{{ url_for('static', filename='ls.unveilhooks.min.js') }}" async=""></script>
+    </body>
+</html>

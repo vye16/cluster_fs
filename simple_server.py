@@ -63,7 +63,7 @@ class ImageDirRequestHandler(SimpleHTTPRequestHandler):
                 "url": url
             })
         
-        with open(os.path.join(SRC_DIR, "index.html"), "r") as f:
+        with open(os.path.join(SRC_DIR, "templates/simple_index.html"), "r") as f:
             template = Template(f.read())
 
         rendered = template.render(

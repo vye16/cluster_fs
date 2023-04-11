@@ -1,0 +1,109 @@
+from flask import (
+    Flask,
+    make_response,
+    render_template,
+    send_file,
+)
+from flask.views import MethodView
+import os
+import re
+import stat
+import json
+import mimetypes
+import sys
+import urllib
+
+app = Flask(__name__)
+
+
+def get_type(path):
+    if os.path.isdir(path):
+        return "dir"
+    if os.path.islink(path):
+        return "link"
+
+    IMG_EXT = set([".jpg", ".jpeg", ".png", ".gif"])
+    VID_EXT = set([".mp4", ".webm"])
+    GLB_EXT = set([".glb", ".gltf"])
+
+    ext = os.path.splitext(path)[-1]
+    if ext in IMG_EXT:
+        return "image"
+    if ext in VID_EXT:
+        return "video"
+    if ext in GLB_EXT:
+        return "glb"
+
+    return "file"
+
+
+class PathView(MethodView):
+    def __init__(self, root):
+        self.root = root
+
+    def get_path_url(self, path):
+        return path.split(self.root)[-1]
+
+    def get(self, p=""):
+        path = os.path.join(self.root, p)
+        print(path)
+
+        if os.path.isdir(path):
+            title = f"Contents of {path}"
+            contents = []
+            for filename in os.listdir(path):
+                if filename.startswith("."):
+                    continue
+                filepath = os.path.join(path, filename)
+                stat_res = os.stat(filepath)
+                filetype = get_type(filepath)
+                displayname = filename
+                if filetype == "dir":
+                    displayname = f"{filename}/"
+                elif filetype == "link":
+                    displayname = f"{filename}@"
+
+                info = {
+                    "filename": filename,
+                    "displayname": displayname,
+                    "url": urllib.parse.quote(filepath),
+                    "filetype": filetype,
+                    "mtime": stat_res.st_mtime,
+                    "size": stat_res.st_size,
+                }
+
+                contents.append(info)
+
+            parent = os.path.dirname(path)
+            page = render_template(
+                "index.html",
+                title=title,
+                parent=parent,
+                parent_path=os.path.join(self.root, parent),
+                contents=contents,
+            )
+            res = make_response(page, 200)
+
+        elif os.path.isfile(path):
+            print(path)
+            res = send_file(path, as_attachment=True)
+
+        else:
+            res = make_response("Not found", 404)
+        return res
+
+
+if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--root", default="/")
+    parser.add_argument("--bind", default="localhost")
+    parser.add_argument("--port", default="8081")
+    args = parser.parse_args()
+
+    path_view = PathView.as_view("path_view", args.root)
+    app.add_url_rule("/", view_func=path_view)
+    app.add_url_rule("/<path:p>", view_func=path_view)
+
+    app.run(args.bind, args.port, threaded=True, debug=True)
