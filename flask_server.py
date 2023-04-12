@@ -52,7 +52,7 @@ class PathView(MethodView):
         if os.path.isdir(path):
             title = f"Contents of {path}"
             contents = []
-            for filename in os.listdir(path):
+            for filename in sorted(os.listdir(path)):
                 if filename.startswith("."):
                     continue
 
