@@ -14,5 +14,5 @@ Host siberian
 
 On the server, run
 ```
-python server.py --root <default ~> --port <default 8080>
+python flask_server.py --root ~ --port <default 8080>
 ```
