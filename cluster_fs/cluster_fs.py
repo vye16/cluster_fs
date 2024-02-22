@@ -102,7 +102,7 @@ def main():
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--root", default=".")
+    parser.add_argument("--root", default=os.path.abspath("."))
     parser.add_argument("--bind", default="localhost")
     parser.add_argument("--port", default="8081")
     args = parser.parse_args()
