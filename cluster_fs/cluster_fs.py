@@ -98,11 +98,11 @@ class PathView(MethodView):
         return res
 
 
-if __name__ == "__main__":
+def main():
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--root", default="/")
+    parser.add_argument("--root", default=".")
     parser.add_argument("--bind", default="localhost")
     parser.add_argument("--port", default="8081")
     args = parser.parse_args()
@@ -112,3 +112,7 @@ if __name__ == "__main__":
     app.add_url_rule("/<path:p>", view_func=path_view)
 
     app.run(args.bind, args.port, threaded=True, debug=True)
+
+
+if __name__ == "__main__":
+    main()
