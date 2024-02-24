@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cluster_fs"
+version = "0.0.0"
+description = "Filesystem browser for the cluster"
+requires-python = ">=3.8"
+dependencies = ["flask"]
+
+[project.urls]
+"GitHub" = "https://github.com/vye16/cluster_fs"
+
+[project.scripts]
+"cluster_fs" = "cluster_fs.cluster_fs:main"
+
+[tool.setuptools.package-data]
+cluster_fs = ["*.html", "*.js"]
