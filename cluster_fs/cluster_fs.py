@@ -101,10 +101,10 @@ class PathView(MethodView):
 def main():
     import argparse
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--root", default=os.path.abspath("."))
-    parser.add_argument("--bind", default="localhost")
-    parser.add_argument("--port", default="8081")
+    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument("--root", help="Root of filesystem browser.", default=os.path.abspath("."))
+    parser.add_argument("--bind", help="Host to bind server to.", default="localhost")
+    parser.add_argument("--port", help="Port to bind server to.", default="8081")
     args = parser.parse_args()
 
     path_view = PathView.as_view("path_view", args.root)
