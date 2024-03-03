@@ -16,4 +16,4 @@ dependencies = ["flask"]
 "cluster_fs" = "cluster_fs.cluster_fs:main"
 
 [tool.setuptools.package-data]
-cluster_fs = ["*.html", "*.js"]
+cluster_fs = ["**/*.html", "**/*.js"]
