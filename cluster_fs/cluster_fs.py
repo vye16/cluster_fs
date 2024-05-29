@@ -23,10 +23,10 @@ def get_type(path):
         return "link"
 
     IMG_EXT = set([".jpg", ".jpeg", ".png", ".gif"])
-    VID_EXT = set([".mp4", ".webm"])
+    VID_EXT = set([".mp4", ".webm", ".mov"])
     GLB_EXT = set([".glb", ".gltf"])
 
-    ext = os.path.splitext(path)[-1]
+    ext = os.path.splitext(path)[-1].lower()
     if ext in IMG_EXT:
         return "image"
     if ext in VID_EXT:
