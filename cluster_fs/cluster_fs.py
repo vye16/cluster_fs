@@ -91,7 +91,7 @@ class PathView(MethodView):
 
         elif os.path.isfile(path):
             print(path)
-            res = send_file(os.path.abspath(path), as_attachment=True)
+            res = send_file(os.path.abspath(path))
 
         else:
             res = make_response("Not found", 404)
